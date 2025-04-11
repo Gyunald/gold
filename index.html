@@ -176,7 +176,9 @@
 
         // 사용자 입력 금 시세 적용 함수
         function applyGoldPrice() {
-            goldPricePerGram = parseFloat(document.getElementById('goldPriceInput').value);
+            // 입력값에서 콤마(,) 제거
+            const inputValue = document.getElementById('goldPriceInput').value.replace(/,/g, '');
+            goldPricePerGram = parseFloat(inputValue);
             
             // 유효성 검사
             if (isNaN(goldPricePerGram) || goldPricePerGram <= 0) {
@@ -298,6 +300,11 @@
             if (event.key === 'Enter') {
                 applyGoldPrice();
             }
+        });
+        
+        // 금 시세 입력 필드에 입력 이벤트 리스너 추가 (콤마 자동 제거)
+        document.getElementById('goldPriceInput').addEventListener('input', function(event) {
+            // 입력 중에는 콤마 자동 제거하지 않음 (사용자 편의성)
         });
 
         // 페이지 로드 시 커스텀 컨트롤 설정
