@@ -95,13 +95,15 @@
 </head>
 <body>
     <div class="container">
-        
         <div class="input-group">
             <label for="goldPriceInput">금 시세 (원/g):</label>
-            <input type="number" id="goldPriceInput" value="1" step="100" min="1">
+            <input type="number" id="goldPriceInput" value="" step="100" min="1" placeholder="금 시세 입력">
         </div>
         
-        <button id="applyPriceButton" class="button">금 시세 적용</button>
+        <div style="display: flex; justify-content: space-between; margin: 20px 0;">
+            <button id="applyPriceButton" class="button">금 시세 적용</button>
+            <a href="https://m.stock.naver.com/marketindex/metals/M04020000" target="_blank" class="button" style="text-decoration: none;">국내 금시세</a>
+        </div>
         
         <div class="radio-group">
             <div class="radio-option">
@@ -152,7 +154,7 @@
 
     <script>
         // 금 시세 관련 기능 구현
-        let goldPricePerGram = 1; // 기본값 설정
+        let goldPricePerGram = 0; // 기본값을 0으로 설정
 
         // 세션에서 저장된 값 가져오기
         if (localStorage.getItem('goldPrice')) {
