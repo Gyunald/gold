@@ -142,10 +142,9 @@
         </div>
         
         <div class="result">
-            <!-- 요청한 형식으로 수정된 결과 표시 -->
+            <!-- 총 중량 항목을 제외한 결과 표시 -->
             <p>• <span id="currentGoldPrice">152,300</span>원/g</p>
             <p>• <span id="resultPurity">14k</span> (순도: <span id="purityPercent">58.5</span>%)</p>
-            <p>• <span id="resultTotalWeight">0.00</span><span id="resultUnit">돈</span> (<span id="resultAlternateWeight">0.00</span><span id="resultAlternateUnit">g</span>)</p>
             <p id="diamondWeightDisplay">• 다이아몬드 무게: <span id="resultDiamondWeight">0.0</span>ct (<span id="resultDiamondWeightGram">0.00</span>g)</p>
             <p>• 금: <span id="resultPureGoldWeight">0.00</span><span id="resultPureGoldUnit">돈</span> (<span id="resultPureGoldWeightGram">0.00</span>g)</p>
             <p class="final-price">• <span id="resultPrice">계산 중...</span>원</p>
@@ -232,7 +231,7 @@
                     break;
                 case '24k':
                     purityRate = 1;
-                    purityPercent = 100;
+                    purityPercent = 99.99;
                     break;
             }
             
@@ -247,20 +246,9 @@
             document.getElementById('currentGoldPrice').textContent = 
                 new Intl.NumberFormat('ko-KR').format(Math.round(goldPricePerGram));
             
-            // 결과 표시 업데이트 - 새로운 포맷
+            // 결과 표시 업데이트 - 총 중량 정보 제외
             document.getElementById('resultPurity').textContent = purity;
             document.getElementById('purityPercent').textContent = purityPercent;
-            document.getElementById('resultTotalWeight').textContent = totalWeight.toFixed(2);
-            document.getElementById('resultUnit').textContent = weightUnit;
-            
-            // 대체 단위로 표시 (g <-> 돈)
-            if (weightUnit === '돈') {
-                document.getElementById('resultAlternateWeight').textContent = (totalWeight * 3.75).toFixed(2);
-                document.getElementById('resultAlternateUnit').textContent = 'g';
-            } else {
-                document.getElementById('resultAlternateWeight').textContent = (totalWeight / 3.75).toFixed(2);
-                document.getElementById('resultAlternateUnit').textContent = '돈';
-            }
             
             // 다이아몬드 무게 표시
             document.getElementById('resultDiamondWeight').textContent = diamondWeightInput.toFixed(2);
