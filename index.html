@@ -97,7 +97,7 @@
     <div class="container">
         <div class="input-group">
             <label for="goldPriceInput">금 시세 (원/g):</label>
-            <input type="number" id="goldPriceInput" value="" step="100" min="1" placeholder="금 시세 입력">
+            <input type="number" id="goldPriceInput" value="" step="100" min="1" placeholder="금 시세 입력" inputmode="numeric" pattern="[0-9]*">
         </div>
         
         <div style="display: flex; justify-content: space-between; margin: 20px 0;">
@@ -297,6 +297,12 @@
 
         // 금 시세 입력에 Enter 키 이벤트 리스너 추가
         document.getElementById('goldPriceInput').addEventListener('keypress', function(event) {
+            // 콤마(,) 키가 입력되면 이벤트 취소
+            if (event.key === ',') {
+                event.preventDefault();
+                return false;
+            }
+            
             if (event.key === 'Enter') {
                 applyGoldPrice();
             }
@@ -304,7 +310,16 @@
         
         // 금 시세 입력 필드에 입력 이벤트 리스너 추가 (콤마 자동 제거)
         document.getElementById('goldPriceInput').addEventListener('input', function(event) {
-            // 입력 중에는 콤마 자동 제거하지 않음 (사용자 편의성)
+            // 콤마가 포함된 경우 실시간으로 제거
+            this.value = this.value.replace(/,/g, '');
+        });
+        
+        // 모바일에서 붙여넣기 이벤트 처리
+        document.getElementById('goldPriceInput').addEventListener('paste', function(event) {
+            // 붙여넣기 직후 처리를 위해 setTimeout 사용
+            setTimeout(() => {
+                this.value = this.value.replace(/,/g, '');
+            }, 0);
         });
 
         // 페이지 로드 시 커스텀 컨트롤 설정
