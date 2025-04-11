@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>금 시세 계산기</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button {
+            background-color: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #152a5f;
+        }
+        .radio-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .radio-option {
+            display: inline-block;
+            margin-right: 15px;
+            text-align: center;
+        }
+        .radio-option input {
+            margin-right: 5px;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        /* 숫자 입력 기본 화살표 스타일 - 크기 증가 */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            height: 50px;
+            width: 25px;
+            opacity: 1;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .result {
+            background-color: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .result p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+        .result .final-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="input-group">
+            <label for="goldPriceInput">금 시세 (원/g):</label>
+            <input type="number" id="goldPriceInput" value="152300" step="100" min="1">
+        </div>
+        
+        <button id="applyPriceButton" class="button">금 시세 적용</button>
+        
+        <div class="radio-group">
+            <div class="radio-option">
+                <input type="radio" id="weightDon" name="weightUnit" value="돈" checked>
+                <label for="weightDon">돈</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="weightGram" name="weightUnit" value="g">
+                <label for="weightGram">g</label>
+            </div>
+        </div>
+        
+        <div class="radio-group">
+            <div class="radio-option">
+                <input type="radio" id="purity14k" name="purity" value="14k" checked>
+                <label for="purity14k">14k</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="purity18k" name="purity" value="18k">
+                <label for="purity18k">18k</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="purity24k" name="purity" value="24k">
+                <label for="purity24k">24k</label>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="weightInput">총 무게:</label>
+            <input type="number" id="weightInput" value="1.0" step="0.01" min="0.1">
+        </div>
+        
+        <div class="input-group">
+            <label for="diamondWeightInput">다이아몬드 무게 (캐럿):</label>
+            <input type="number" id="diamondWeightInput" value="0.0" step="0.1" min="0">
+        </div>
+        
+        <div class="result">
+            <!-- 요청한 형식으로 수정된 결과 표시 -->
+            <p>• 현재 금값: <span id="currentGoldPrice">152,300</span>원/g</p>
+            <p>• 함량: <span id="resultPurity">14k</span> (순도: <span id="purityPercent">58.5</span>%)</p>
+            <p>• 입력 중량: <span id="resultTotalWeight">0.00</span><span id="resultUnit">돈</span> (<span id="resultAlternateWeight">0.00</span><span id="resultAlternateUnit">g</span>)</p>
+            <p id="diamondWeightDisplay">• 다이아몬드 무게: <span id="resultDiamondWeight">0.0</span>ct (<span id="resultDiamondWeightGram">0.00</span>g)</p>
+            <p>• 순수 금 중량: <span id="resultPureGoldWeight">0.00</span><span id="resultPureGoldUnit">돈</span> (<span id="resultPureGoldWeightGram">0.00</span>g)</p>
+            <p class="final-price">• 예상가격: <span id="resultPrice">계산 중...</span>원</p>
+        </div>
+    </div>
+
+    <script>
+        // 금 시세 관련 기능 구현
+        let goldPricePerGram = 152300; // 기본값 설정
+
+        // 세션에서 저장된 값 가져오기
+        if (localStorage.getItem('goldPrice')) {
+            goldPricePerGram = parseFloat(localStorage.getItem('goldPrice'));
+            document.getElementById('goldPriceInput').value = goldPricePerGram;
+            updateCurrentPriceDisplay();
+        }
+
+        // 커스텀 컨트롤 함수 - 좌우 방향키 삭제
+        function setupCustomNumberControls() {
+            // 이 함수는 좌우 방향키를 제거하기 위해 빈 함수로 대체
+            // 기본 숫자 입력 컨트롤만 사용
+        }
+
+        // 현재 금 시세 표시 업데이트 함수
+        function updateCurrentPriceDisplay() {
+            calculatePrice();
+        }
+
+        // 사용자 입력 금 시세 적용 함수
+        function applyGoldPrice() {
+            goldPricePerGram = parseFloat(document.getElementById('goldPriceInput').value);
+            
+            // 유효성 검사
+            if (isNaN(goldPricePerGram) || goldPricePerGram <= 0) {
+                alert('유효한 금 시세를 입력해주세요.');
+                return;
+            }
+            
+            // 로컬 스토리지에 저장
+            localStorage.setItem('goldPrice', goldPricePerGram.toString());
+            
+            updateCurrentPriceDisplay();
+        }
+
+        // 가격 계산 함수
+        function calculatePrice() {
+            const weightUnit = document.querySelector('input[name="weightUnit"]:checked').value;
+            const purity = document.querySelector('input[name="purity"]:checked').value;
+            const totalWeight = parseFloat(document.getElementById('weightInput').value) || 0;
+            const diamondWeightInput = parseFloat(document.getElementById('diamondWeightInput').value) || 0;
+            
+            // 다이아몬드 무게를 그램 단위로 변환 (1 캐럿 = 0.2 그램)
+            const diamondWeightInGrams = diamondWeightInput * 0.2;
+            
+            // 총 무게를 그램 단위로 변환
+            let totalWeightInGrams = 0;
+            if (weightUnit === '돈') {
+                totalWeightInGrams = totalWeight * 3.75;
+            } else { // 그램
+                totalWeightInGrams = totalWeight;
+            }
+            
+            // 순 금속 무게 계산 (총 무게 - 다이아몬드 무게) 그램 단위
+            let netWeightInGrams = Math.max(0, totalWeightInGrams - diamondWeightInGrams);
+            
+            // 순 무게를 원래 선택한 단위로 다시 변환
+            let netWeight = netWeightInGrams;
+            if (weightUnit === '돈') {
+                netWeight = netWeightInGrams / 3.75;
+            }
+            
+            let purityRate = 1;
+            let purityPercent = 100;
+            switch (purity) {
+                case '14k':
+                    purityRate = 0.585;
+                    purityPercent = 58.5;
+                    break;
+                case '18k':
+                    purityRate = 0.75;
+                    purityPercent = 75;
+                    break;
+                case '24k':
+                    purityRate = 1;
+                    purityPercent = 100;
+                    break;
+            }
+            
+            // 순수 금 중량 계산 (순 금속 무게 * 순도)
+            const pureGoldWeight = netWeight * purityRate;
+            const pureGoldWeightInGrams = netWeightInGrams * purityRate;
+            
+            // 가격 계산 (그램 단위로 계산)
+            const finalPrice = netWeightInGrams * goldPricePerGram * purityRate;
+            
+            // 현재 금값 표시 업데이트
+            document.getElementById('currentGoldPrice').textContent = 
+                new Intl.NumberFormat('ko-KR').format(Math.round(goldPricePerGram));
+            
+            // 결과 표시 업데이트 - 새로운 포맷
+            document.getElementById('resultPurity').textContent = purity;
+            document.getElementById('purityPercent').textContent = purityPercent;
+            document.getElementById('resultTotalWeight').textContent = totalWeight.toFixed(2);
+            document.getElementById('resultUnit').textContent = weightUnit;
+            
+            // 대체 단위로 표시 (g <-> 돈)
+            if (weightUnit === '돈') {
+                document.getElementById('resultAlternateWeight').textContent = (totalWeight * 3.75).toFixed(2);
+                document.getElementById('resultAlternateUnit').textContent = 'g';
+            } else {
+                document.getElementById('resultAlternateWeight').textContent = (totalWeight / 3.75).toFixed(2);
+                document.getElementById('resultAlternateUnit').textContent = '돈';
+            }
+            
+            // 다이아몬드 무게 표시
+            document.getElementById('resultDiamondWeight').textContent = diamondWeightInput.toFixed(2);
+            document.getElementById('resultDiamondWeightGram').textContent = diamondWeightInGrams.toFixed(2);
+            
+            // 다이아몬드 무게가 0보다 클 때만 표시
+            if (diamondWeightInput > 0) {
+                document.getElementById('diamondWeightDisplay').style.display = 'block';
+            } else {
+                document.getElementById('diamondWeightDisplay').style.display = 'none';
+            }
+            
+            // 순수 금 중량 표시
+            document.getElementById('resultPureGoldWeight').textContent = pureGoldWeight.toFixed(2);
+            document.getElementById('resultPureGoldUnit').textContent = weightUnit;
+            document.getElementById('resultPureGoldWeightGram').textContent = pureGoldWeightInGrams.toFixed(2);
+            
+            document.getElementById('resultPrice').textContent = 
+                new Intl.NumberFormat('ko-KR').format(Math.round(finalPrice));
+        }
+
+        // 이벤트 리스너 설정
+        document.getElementById('applyPriceButton').addEventListener('click', applyGoldPrice);
+
+        // 모든 입력 요소에 변경 이벤트 리스너 추가
+        document.querySelectorAll('input[name="weightUnit"], input[name="purity"], #weightInput, #diamondWeightInput')
+            .forEach(element => {
+                element.addEventListener('change', calculatePrice);
+            });
+            
+        // 숫자 입력에 입력 이벤트 리스너 추가 (실시간 업데이트를 위해)
+        document.getElementById('weightInput').addEventListener('input', calculatePrice);
+        document.getElementById('diamondWeightInput').addEventListener('input', calculatePrice);
+
+        // 금 시세 입력에 Enter 키 이벤트 리스너 추가
+        document.getElementById('goldPriceInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                applyGoldPrice();
+            }
+        });
+
+        // 페이지 로드 시 커스텀 컨트롤 설정
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCustomNumberControls();
+        });
+
+        // 초기 계산 실행
+        updateCurrentPriceDisplay();
+    </script>
+</body>
+</html>
