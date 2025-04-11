@@ -65,7 +65,7 @@
         /* 숫자 입력 기본 화살표 스타일 - 크기 증가 */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
-            height: 50px;
+            height: 35px;
             width: 25px;
             opacity: 1;
             cursor: pointer;
@@ -143,11 +143,11 @@
         
         <div class="result">
             <!-- 요청한 형식으로 수정된 결과 표시 -->
-            <p>• 금값: <span id="currentGoldPrice">152,300</span>원/g</p>
+            <p>• <span id="currentGoldPrice">152,300</span>원/g</p>
             <p>• <span id="resultPurity">14k</span> (순도: <span id="purityPercent">58.5</span>%)</p>
             <p>• <span id="resultTotalWeight">0.00</span><span id="resultUnit">돈</span> (<span id="resultAlternateWeight">0.00</span><span id="resultAlternateUnit">g</span>)</p>
             <p id="diamondWeightDisplay">• 다이아몬드 무게: <span id="resultDiamondWeight">0.0</span>ct (<span id="resultDiamondWeightGram">0.00</span>g)</p>
-            <p>• 금 중량: <span id="resultPureGoldWeight">0.00</span><span id="resultPureGoldUnit">돈</span> (<span id="resultPureGoldWeightGram">0.00</span>g)</p>
+            <p>• 금: <span id="resultPureGoldWeight">0.00</span><span id="resultPureGoldUnit">돈</span> (<span id="resultPureGoldWeightGram">0.00</span>g)</p>
             <p class="final-price">• <span id="resultPrice">계산 중...</span>원</p>
         </div>
     </div>
